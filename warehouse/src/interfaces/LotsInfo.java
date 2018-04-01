@@ -1,6 +1,7 @@
 package interfaces;
 
 public interface LotsInfo {
-    int totalWeight();
+
+    double totalWeight();
     int totalSize();
 }
