@@ -3,15 +3,17 @@ package controller;
 
 import exceptions.NotEnoughtSpaceException;
 import exceptions.WarehouseExceptions;
+import interfaces.StockInfo;
 import model.Lot;
 import model.Product;
+import model.Stock;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class wareHouseController {
 
-    public void importProduct(String name,int quantity) throws WarehouseExceptions,SQLException{
+    public ArrayList<Integer> importProduct(String name,int quantity) throws WarehouseExceptions,SQLException {
         Product product = new ProductDao().findByName(name);
         int ProductsTotalSize = product.getSize() * quantity;
         double ProductsTotalWeight = product.getWeight() * quantity;
@@ -20,26 +22,42 @@ public class wareHouseController {
 
         if(ProductsTotalSize < availableSize || ProductsTotalWeight < availableWeight)
             throw new NotEnoughtSpaceException("Import package to large!");
+        ArrayList<Integer> result = new ArrayList<>();
 
-        if(checkForFreeSpace(product, quantity) == null){
+        if(checkForFreeSpace(product, quantity).get(0) != null){
+              result = checkForFreeSpace(product, quantity);
+        }else {
+            Lot empty = StockDao().getFreeLot;
+        StockDao().importProduct(empty, product, quantity);
+            result.add(empty.getId());
+    }
+    return result;
+    }
+
+    public void exportProduct(String name, int quantity) throws WarehouseExceptions, SQLException {
+        Product p = new ProductDao().findByName(name);
+        while (StockDao().getProductInLots(name).hasNext()){
 
         }
-
-
-
     }
-    private ArrayList<Lot> checkForFreeSpace(Product p,int quantity)throws NotEnoughtSpaceException{
+
+    private ArrayList<Integer> checkForFreeSpace(Product p,int quantity)throws NotEnoughtSpaceException{
+        int count = quantity;
         int size = p.getSize() * quantity;
         double weight = p.getWeight() * quantity;
-        ArrayList<Lot> lots = new ArrayList<Lot>();
-        while (size >0){
+        ArrayList<Integer> lots = new ArrayList<Integer>();
+        while (quantity >0){
             try(Lot found = StockDao().findAvailableSpace(size,weight)){
-                lots.add(found);
+                StockDao().importProduct(found.getId(),p.getName(),count);
+                lots.add(found.getId());
+                quantity = quantity - count;
+                size = size - p.getSize()*count;
+                weight = weight - p.getWeight()*count;
+                count = quantity;
+            }catch (Exception e){
+                count--;
                 size = size - p.getSize();
                 weight = weight - p.getWeight();
-                quantity--;
-            }catch (Exception e){
-
             }
         }
         return lots;
