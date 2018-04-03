@@ -111,8 +111,9 @@
         <option value="$PROJECT_DIR$/src/model/Lot.java" />
         <option value="$PROJECT_DIR$/src/exceptions/NotEnoughtSpaceException.java" />
         <option value="$PROJECT_DIR$/src/model/Stock.java" />
-        <option value="$PROJECT_DIR$/src/interfaces/StockInfo.java" />
         <option value="$PROJECT_DIR$/src/interfaces/LotsInfo.java" />
+        <option value="$PROJECT_DIR$/src/interfaces/StockInfo.java" />
+        <option value="$PROJECT_DIR$/src/interfaces/ProductsInfo.java" />
         <option value="$PROJECT_DIR$/src/controller/wareHouseController.java" />
         <option value="$PROJECT_DIR$/src/dao/AbstractDao.java" />
         <option value="$PROJECT_DIR$/src/dao/LotsDao.java" />
@@ -142,6 +143,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="AndroidView" />
       <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
