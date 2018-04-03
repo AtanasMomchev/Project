@@ -3,10 +3,8 @@ package controller;
 
 import exceptions.NotEnoughtSpaceException;
 import exceptions.WarehouseExceptions;
-import interfaces.StockInfo;
 import model.Lot;
 import model.Product;
-import model.Stock;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,7 +18,7 @@ public class wareHouseController {
         int availableSize = LotsDao().totalSize - StockDao().totalTakenSize;
         double availableWeight = LotsDao().totalWeight - StockDao().totalTakenWeight;
 
-        if(ProductsTotalSize < availableSize || ProductsTotalWeight < availableWeight)
+        if(ProductsTotalSize > availableSize || ProductsTotalWeight > availableWeight)
             throw new NotEnoughtSpaceException("Import package to large!");
         ArrayList<Integer> result = new ArrayList<>();
 
@@ -37,7 +35,6 @@ public class wareHouseController {
     public void exportProduct(String name, int quantity) throws WarehouseExceptions, SQLException {
         Product p = new ProductDao().findByName(name);
         while (StockDao().getProductInLots(name).hasNext()){
-
         }
     }
 
@@ -51,8 +48,8 @@ public class wareHouseController {
                 StockDao().importProduct(found.getId(),p.getName(),count);
                 lots.add(found.getId());
                 quantity = quantity - count;
-                size = size - p.getSize()*count;
-                weight = weight - p.getWeight()*count;
+                size = p.getSize()*quantity;
+                weight = p.getWeight()*quantity;
                 count = quantity;
             }catch (Exception e){
                 count--;
