@@ -3,10 +3,10 @@ package model;
 public class Product {
     private String name;
     private int size;
-    private int weight;
+    private double weight;
     private double price;
 
-    public Product(String name, int size, int weight, double price) {
+    public Product(String name, int size, double weight, double price) {
         this.name = name;
         this.size = size;
         this.weight = weight;
@@ -29,11 +29,11 @@ public class Product {
         this.size = size;
     }
 
-    public int getWeight() {
+    public double getWeight() {
         return weight;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(double weight) {
         this.weight = weight;
     }
 
