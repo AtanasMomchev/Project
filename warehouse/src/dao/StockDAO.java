@@ -25,9 +25,10 @@ public class StockDAO extends AbstractDAO implements StockInfo {
     }
 
     @Override
-    public Lot getFreeLot() {
+    public Lot getFreeLot(int size, double weight) {
         return null;
     }
+
 
     @Override
     public Lot getLotsWithProduct(String name) {
