@@ -67,7 +67,7 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
         return ps.executeQuery();
     }
 
-    private int insertProduct(PreparedStatement ps, String name, int size, double weight,
+    private void insertProduct(PreparedStatement ps, String name, int size, double weight,
                               double price) throws SQLException, ProductExistException {
 
         try {
@@ -75,7 +75,8 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
             ps.setInt(2, size);
             ps.setDouble(3, weight);
             ps.setDouble(4, price);
-            return ps.executeUpdate();
+
+            ps.executeUpdate();
 
         } catch (MySQLIntegrityConstraintViolationException icve) {
             throw new ProductExistException("This product already exist ");

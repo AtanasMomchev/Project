@@ -29,7 +29,6 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         return 0;
     }
 
-
     @Override
     public int totalSize() {
         String getSizeQuery = "SELECT SUM(lots.sizeLots)\n" +
