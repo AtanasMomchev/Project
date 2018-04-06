@@ -61,13 +61,24 @@ public class StockDAO extends AbstractDAO implements StockInfo {
     public void importProduct(int lot_id,  String product_name, int quantity) throws SQLException, ProductNotFoundException {
         String importProdQuery = "INSERT INTO `warehouse`.`lots_quantity` (`product_name`, `lot_id`, `product_quantity`) " +
                 "VALUES (?, ?, ?);\n";
+        String updateProdQuantityQuery = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`= ? " +
+                "WHERE `product_name`= ?;\n";
 
         try (Connection con = getConnection();
-             PreparedStatement importProd = con.prepareStatement(importProdQuery)
+             PreparedStatement importProd = con.prepareStatement(importProdQuery);
+             PreparedStatement updateProd = con.prepareStatement(updateProdQuantityQuery)
         ){
             if (findProd(product_name))
-                insertProdInLot(importProd, lot_id, product_name, quantity);
-                System.out.println("Set new product: success ");
+
+                if (!getProdFromLot().contains(product_name)) {
+                    insertProdInLot(importProd, lot_id, product_name, quantity);
+                    System.out.println("Set new product: success ");
+                } else {
+
+                    int newQuantity = productQuantityInStock(product_name) + quantity ;
+                    updateProdInLot(updateProd, product_name, newQuantity);
+                    System.out.println("Update " + product_name + " quantity");
+                }
         }
     }
 
@@ -99,7 +110,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
 
     @Override
     public void exportProduct(int lot_id, int quantity) {
-
+        String exportProduct = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`=? WHERE `id`='2';\n";
     }
 
     @Override
@@ -154,4 +165,18 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.executeUpdate();
     }
 
+    private void updateProdInLot(PreparedStatement ps, String prodName, int quantity) throws SQLException {
+
+        ps.setInt(1,quantity);
+        ps.setString(2,prodName);
+        ps.executeUpdate();
+    }
+
 }
+
+
+
+
+
+
+

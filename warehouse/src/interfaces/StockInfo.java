@@ -24,7 +24,7 @@ public interface StockInfo {
     int productQuantityInStock(String name) throws SQLException;
 
     //namaliya quantityto na product v lot
-    void exportProduct(int lot_id, int quantity);
+    void exportProduct(String product_name, int quantity);
 
     //namira lot s product s opredeleni broiki
     Lot lotWithProduct(String name,int quantity);
