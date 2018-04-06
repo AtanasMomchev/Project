@@ -7,7 +7,9 @@ import model.Stock;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class StockDAO extends AbstractDAO implements StockInfo {
@@ -18,7 +20,13 @@ public class StockDAO extends AbstractDAO implements StockInfo {
 //        System.out.println(st.getProdFromLot().toString());
 //        System.out.println(st.totalTakenSize());
 //        System.out.println(st.totalTakenWeight());
-        System.out.println(st.productQuantityInStock("banana"));
+//        System.out.println(st.productQuantityInStock("banana"));
+//        st.importProduct(1, "sweet potato", 10);
+//        st.exportProduct("sweet potato", 3);
+//        System.out.println(st.getAvLotId(4,25));
+
+        Lot lot = st.findAvailableSpace(4,13);
+        System.out.println("Lot ID: " + lot.getId());
     }
 
     @Override
@@ -34,7 +42,9 @@ public class StockDAO extends AbstractDAO implements StockInfo {
             ResultSet size = setProductName(getSize, s);
             if (size.next())
             counter += size.getInt(1)*productQuantityInStock(s);
-        } return counter;
+        }
+        con.close();
+        return counter;
     }
 
     @Override
@@ -49,13 +59,11 @@ public class StockDAO extends AbstractDAO implements StockInfo {
             ResultSet size = setProductName(getWeight, s);
             if (size.next())
                 counter += size.getInt(1)*productQuantityInStock(s);
-        } return counter;
+        }
+        con.close();
+        return counter;
     }
 
-    @Override
-    public Lot findAvailableSpace(int size, double weight) {
-        return null;
-    }
 
     @Override
     public void importProduct(int lot_id,  String product_name, int quantity) throws SQLException, ProductNotFoundException {
@@ -70,16 +78,66 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ){
             if (findProd(product_name))
 
-                if (!getProdFromLot().contains(product_name)) {
+                if (!getProdFromLot(lot_id).contains(product_name)) {
                     insertProdInLot(importProd, lot_id, product_name, quantity);
                     System.out.println("Set new product: success ");
                 } else {
-
                     int newQuantity = productQuantityInStock(product_name) + quantity ;
                     updateProdInLot(updateProd, product_name, newQuantity);
                     System.out.println("Update " + product_name + " quantity");
                 }
         }
+    }
+
+    @Override
+    public void exportProduct(String product_name, int quantity) throws SQLException, ProductNotFoundException {
+        String exportProductQuery = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`=? WHERE `product_name`=?;\n";
+
+        try (Connection con = getConnection();
+            PreparedStatement exportProduct = con.prepareStatement(exportProductQuery)
+        ) {
+            if (getProdFromLot().contains(product_name)) {
+                int newQuantity = productQuantityInStock(product_name) - quantity;
+                exportProdFromLot(exportProduct, product_name, newQuantity);
+                System.out.println("Export " + quantity + " " + product_name + "s");
+            }
+        }
+
+    }
+
+
+    @Override
+    public Lot findAvailableSpace(int size, double weight) throws SQLException, ProductNotFoundException {
+
+        return new Lot(getAvLotId(size, weight), size, weight);
+    }
+
+    private int getAvLotId(int size, double weight) throws SQLException, ProductNotFoundException {
+
+        LotsDAO lots = new LotsDAO();
+        ProductsDAO productsInLot = new ProductsDAO();
+        int lotSize = 0;
+        double lotWeight = 0;
+        int productSize = 0;
+        double productWeight = 0;
+        int avSize = 0;
+        double avWeight = 0;
+
+        for (Integer id : getLotsIdsFromStockSet()) {
+            lotSize = lots.getLotSize(id);
+            lotWeight = lots.getLotWeight(id);
+            for (String prod : getProdFromLot(id)) {
+                productSize += productsInLot.getProductSize(prod);
+                productWeight += productsInLot.getProductSize(prod);
+            }
+            avSize = lotSize - productSize;
+            avWeight = lotWeight - productWeight;
+
+            if (size < avSize && weight < avWeight){
+                return id;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -108,10 +166,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         return 0;
     }
 
-    @Override
-    public void exportProduct(int lot_id, int quantity) {
-        String exportProduct = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`=? WHERE `id`='2';\n";
-    }
+
 
     @Override
     public Lot lotWithProduct(String name, int quantity) {
@@ -119,9 +174,25 @@ public class StockDAO extends AbstractDAO implements StockInfo {
     }
 
 
+    private List<String> getProdFromLot(int lot_id) throws SQLException {
+        List<String> productsList = new ArrayList<>();
+        String getProdQuery = "SELECT product_name FROM warehouse.lots_quantity " +
+                "WHERE lot_id=" + lot_id + ";";
+
+        try (Connection con = getConnection();
+             Statement getProducts = con.createStatement();
+             ResultSet prod = getProducts.executeQuery(getProdQuery)
+        ){
+            while (prod.next()){
+                productsList.add(prod.getString(1));
+            }
+            return productsList;
+        }
+    }
+
     private List<String> getProdFromLot() throws SQLException {
         List<String> productsList = new ArrayList<>();
-        String getProdQuery = "SELECT product_name FROM warehouse.lots_quantity;";
+        String getProdQuery = "SELECT product_name FROM warehouse.lots_quantity";
 
         try (Connection con = getConnection();
              Statement getProducts = con.createStatement();
@@ -170,6 +241,29 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.setInt(1,quantity);
         ps.setString(2,prodName);
         ps.executeUpdate();
+    }
+
+    private void exportProdFromLot(PreparedStatement ps, String prodName, int quantity) throws SQLException {
+
+        ps.setInt(1, quantity);
+        ps.setString(2, prodName);
+        ps.executeUpdate();
+    }
+
+    private Set<Integer> getLotsIdsFromStockSet() throws SQLException {
+        String getLotIdQuery = "SELECT lot_id FROM warehouse.lots_quantity;";
+        Set<Integer> lotIds = new HashSet<>();
+
+
+        try (Connection con = getConnection();
+             Statement getLotId = con.createStatement();
+             ResultSet lotId = getLotId.executeQuery(getLotIdQuery)
+        ){
+            while (lotId.next()){
+                lotIds.add(lotId.getInt(1));
+            }
+        }
+        return lotIds;
     }
 
 }

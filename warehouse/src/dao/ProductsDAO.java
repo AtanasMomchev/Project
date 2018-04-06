@@ -83,4 +83,10 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
         }
     }
 
+    public int getProductSize(String prodName) throws SQLException, ProductNotFoundException {
+
+        Product prod = findByName(prodName);
+        return prod.getSize();
+    }
+
 }

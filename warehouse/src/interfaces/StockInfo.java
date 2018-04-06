@@ -11,7 +11,7 @@ public interface StockInfo {
 
     double totalTakenWeight() throws SQLException;
 
-    Lot findAvailableSpace(int size,double weight);
+    Lot findAvailableSpace(int size,double weight) throws SQLException, ProductNotFoundException;
 
     void importProduct(int lot_id, String product_name, int quantity) throws SQLException, ProductNotFoundException;
 
@@ -24,7 +24,7 @@ public interface StockInfo {
     int productQuantityInStock(String name) throws SQLException;
 
     //namaliya quantityto na product v lot
-    void exportProduct(String product_name, int quantity);
+    void exportProduct(String product_name, int quantity) throws SQLException, ProductNotFoundException;
 
     //namira lot s product s opredeleni broiki
     Lot lotWithProduct(String name,int quantity);

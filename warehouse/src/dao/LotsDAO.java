@@ -2,12 +2,62 @@ package dao;
 
 import interfaces.LotsInfo;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LotsDAO extends AbstractDAO implements LotsInfo {
+
+
+    public List<Integer> getLotIds() throws SQLException {
+        String getLotIdQuery = "SELECT idLots FROM warehouse.lots;";
+        List<Integer> lotIds = new ArrayList<>();
+
+        try (Connection con = getConnection();
+             Statement getLotId = con.createStatement();
+             ResultSet lotId = getLotId.executeQuery(getLotIdQuery)
+        ){
+            while (lotId.next()){
+                lotIds.add(lotId.getInt(1));
+            }
+        }
+        return lotIds;
+    }
+
+
+    public int getLotSize(int lot_id) throws SQLException {
+
+        String getLotSizeQuery = "SELECT sizeLots FROM warehouse.lots " +
+                "WHERE idLots = ?;";
+
+        try (Connection con = getConnection();
+             PreparedStatement getLotSize = con.prepareStatement(getLotSizeQuery);
+             ResultSet size = getSize(getLotSize, lot_id)
+        ){
+            if (size.next()){
+                return size.getInt(1);
+            }
+        }
+        return -1;
+    }
+
+
+    public double getLotWeight(int lot_id) throws SQLException {
+
+        String getLotWeightQuery = "SELECT weightCapacityLots FROM warehouse.lots " +
+                "WHERE idLots = ?;";
+
+        try (Connection con = getConnection();
+             PreparedStatement getLotSize = con.prepareStatement(getLotWeightQuery);
+             ResultSet size = getWeight(getLotSize, lot_id)
+        ){
+            if (size.next()){
+                return size.getDouble(1);
+            }
+        }
+        return -1;
+    }
+
 
     @Override
     public double totalWeight() {
@@ -48,13 +98,27 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         return 0;
     }
 
-    /*The block below is for testing the methods
-    public static void main(String[] args) {
+    private ResultSet getSize(PreparedStatement ps, int id) throws SQLException {
+
+        ps.setInt(1, id);
+        return ps.executeQuery();
+    }
+
+    private ResultSet getWeight(PreparedStatement ps, int id) throws SQLException {
+
+        ps.setDouble(1, id);
+        return ps.executeQuery();
+    }
+
+
+//    /*The block below is for testing the methods
+    public static void main(String[] args) throws SQLException {
 
         LotsDAO lo = new LotsDAO();
-        System.out.println(lo.totalWeight());
-        System.out.println(lo.totalSize());
-
+//        System.out.println(lo.totalWeight());
+//        System.out.println(lo.totalSize());
+//        System.out.println(lo.getLotSize(1));
+        System.out.println(lo.getLotWeight(1));
     }
-    /*/
+//    /*/
 }
