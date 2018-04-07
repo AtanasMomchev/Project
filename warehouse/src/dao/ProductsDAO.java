@@ -13,11 +13,6 @@ import java.sql.SQLException;
 
 public class ProductsDAO extends AbstractDAO implements ProductsInfo {
 
-    public static void main(String[] args) throws ProductNotFoundException, SQLException, ProductExistException {
-        ProductsDAO pr = new ProductsDAO();
-//        System.out.println(pr.findByName("banana").getName());
-        pr.setProduct("eggs", 3, 1, 2);
-    }
 
     @Override
     public void setProduct(String name, int size, double weight,
@@ -26,13 +21,32 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
         String setProdQuery = "INSERT INTO `warehouse`.`products` " +
                 "(`nameProduct`, `sizeProduct`, `weightProduct`, `priceProduct`) " +
                 "VALUES (?, ?, ?, ?);\n";
-        try (
-                Connection con = getConnection();
-                PreparedStatement setProd = con.prepareStatement(setProdQuery)
+        try (Connection con = getConnection();
+             PreparedStatement setProd = con.prepareStatement(setProdQuery)
         ) {
             insertProduct(setProd, name, size, weight, price);
             System.out.println("Set new product: success ");
         }
+    }
+
+    @Override
+    public void dropProduct(String name) throws SQLException {
+
+        String deleteProdQuery = "DELETE FROM `warehouse`.`products`\n" +
+                "WHERE nameProduct = ?;";
+
+        try (Connection con = getConnection();
+             PreparedStatement deleteProd = con.prepareStatement(deleteProdQuery)
+        ){
+            deleteProduct(deleteProd, name);
+            System.out.println(name + " is dropped ");
+        }
+    }
+
+    private void deleteProduct(PreparedStatement ps, String name) throws SQLException {
+
+        ps.setString(1,name);
+        ps.executeUpdate();
     }
 
     public Product findByName(String name) throws SQLException, ProductNotFoundException {
@@ -55,10 +69,6 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
                 throw new ProductNotFoundException(name);
             }
         }
-    }
-    @Override
-    public void dropProduct(){
-
     }
 
     private ResultSet setProductName(PreparedStatement ps, String name) throws SQLException {
@@ -94,4 +104,13 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
         Product prod = findByName(prodName);
         return prod.getWeight();
     }
+
+        /*The block below is for testing the methods
+    public static void main(String[] args) throws ProductNotFoundException, SQLException, ProductExistException {
+        ProductsDAO pr = new ProductsDAO();
+//        System.out.println(pr.findByName("banana").getName());
+//        pr.setProduct("eggs", 3, 1, 2);
+//        pr.dropProduct("watermelon");
+    }
+    /*/
 }

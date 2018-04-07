@@ -24,6 +24,24 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         return lotIds;
     }
 
+    public void setLot(int size, double weightCap) throws SQLException {
+
+        String setLotQuery = "INSERT INTO `warehouse`.`lots` " +
+                "(`sizeLots`, `weightCapacityLots`) " +
+                "VALUES (?, ?);";
+
+        try (Connection con = getConnection();
+             PreparedStatement setLot = con.prepareStatement(setLotQuery)
+        ){
+            setLot.setInt(1,size);
+            setLot.setDouble(2,weightCap);
+            int set = setLot.executeUpdate();
+            if (set == 1){
+                System.out.println("Set new lot: success ");
+            }
+        }
+    }
+
 
     public int getLotSize(int lot_id) throws SQLException {
 
@@ -114,7 +132,8 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
 //        System.out.println(lo.totalWeight());
 //        System.out.println(lo.totalSize());
 //        System.out.println(lo.getLotSize(1));
-        System.out.println(lo.getLotWeight(1));
+//        System.out.println(lo.getLotWeight(1));
+        lo.setLot(15, 40);
     }
 //    /*/
 }

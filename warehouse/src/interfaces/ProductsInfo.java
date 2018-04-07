@@ -10,5 +10,5 @@ public interface ProductsInfo {
     Product findByName(String name) throws SQLException, ProductNotFoundException;
     void setProduct(String name, int size, double weight,
                     double price)throws SQLException, ProductExistException;
-    public void dropProduct();
+    public void dropProduct(String name) throws SQLException;
 }
