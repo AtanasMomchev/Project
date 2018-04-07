@@ -15,24 +15,6 @@ import java.util.Set;
 
 public class StockDAO extends AbstractDAO implements StockInfo {
 
-    public static void main(String[] args) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException {
-        StockDAO st = new StockDAO();
-//        st.importProduct(2, "kiwi", 12);
-//        System.out.println(st.getProdFromLot().toString());
-//        System.out.println(st.totalTakenSize());
-//        System.out.println(st.totalTakenWeight());
-//        System.out.println(st.productQuantityInStock("banana"));
-//        st.importProduct(1, "sweet potato", 10);
-//        st.exportProduct("sweet potato", 3);
-//        System.out.println(st.getAvLotId(4,25));
-
-//        Lot lot = st.findAvailableSpace(4,13);
-
-        Lot lot = st.lotWithProduct("kiwi", 20);
-        System.out.println("Lot ID: " + lot.getId());
-
-//        System.out.println(st.getProdFromLot(1));
-    }
 
     @Override
     public int totalTakenSize() throws SQLException {
@@ -325,6 +307,27 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         }
         return lotIds;
     }
+
+        /*The block below is for testing the methods
+    public static void main(String[] args) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException {
+//        StockDAO st = new StockDAO();
+//        st.importProduct(2, "kiwi", 12);
+//        System.out.println(st.getProdFromLot().toString());
+//        System.out.println(st.totalTakenSize());
+//        System.out.println(st.totalTakenWeight());
+//        System.out.println(st.productQuantityInStock("banana"));
+//        st.importProduct(1, "sweet potato", 10);
+//        st.exportProduct("sweet potato", 3);
+//        System.out.println(st.getAvLotId(4,25));
+
+//        Lot lot = st.findAvailableSpace(4,13);
+
+//        Lot lot = st.lotWithProduct("kiwi", 20);
+//        System.out.println("Lot ID: " + lot.getId());
+
+//        System.out.println(st.getProdFromLot(1));
+    }
+    /*/
 
 }
 
