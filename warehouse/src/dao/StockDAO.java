@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.NotEnoughtSpaceException;
 import exceptions.ProductNotFoundException;
 import interfaces.StockInfo;
 import model.Lot;
@@ -14,7 +15,7 @@ import java.util.Set;
 
 public class StockDAO extends AbstractDAO implements StockInfo {
 
-    public static void main(String[] args) throws SQLException, ProductNotFoundException {
+    public static void main(String[] args) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException {
         StockDAO st = new StockDAO();
 //        st.importProduct(2, "kiwi", 12);
 //        System.out.println(st.getProdFromLot().toString());
@@ -25,8 +26,12 @@ public class StockDAO extends AbstractDAO implements StockInfo {
 //        st.exportProduct("sweet potato", 3);
 //        System.out.println(st.getAvLotId(4,25));
 
-        Lot lot = st.findAvailableSpace(4,13);
+//        Lot lot = st.findAvailableSpace(4,13);
+
+        Lot lot = st.lotWithProduct("kiwi", 20);
         System.out.println("Lot ID: " + lot.getId());
+
+//        System.out.println(st.getProdFromLot(1));
     }
 
     @Override
@@ -105,49 +110,34 @@ public class StockDAO extends AbstractDAO implements StockInfo {
 
     }
 
-
     @Override
-    public Lot findAvailableSpace(int size, double weight) throws SQLException, ProductNotFoundException {
+    public Lot findAvailableSpace(int size, double weight) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException {
 
-        return new Lot(getAvLotId(size, weight), size, weight);
-    }
+        int lotId = getAvLotId(size, weight);
 
-    private int getAvLotId(int size, double weight) throws SQLException, ProductNotFoundException {
-
-        LotsDAO lots = new LotsDAO();
-        ProductsDAO productsInLot = new ProductsDAO();
-        int lotSize = 0;
-        double lotWeight = 0;
-        int productSize = 0;
-        double productWeight = 0;
-        int avSize = 0;
-        double avWeight = 0;
-
-        for (Integer id : getLotsIdsFromStockSet()) {
-            lotSize = lots.getLotSize(id);
-            lotWeight = lots.getLotWeight(id);
-            for (String prod : getProdFromLot(id)) {
-                productSize += productsInLot.getProductSize(prod);
-                productWeight += productsInLot.getProductSize(prod);
-            }
-            avSize = lotSize - productSize;
-            avWeight = lotWeight - productWeight;
-
-            if (size < avSize && weight < avWeight){
-                return id;
-            }
-        }
-        return -1;
+        if (lotId == - 1) {
+            throw new NotEnoughtSpaceException("There are no available space found");
+        } else
+            return new Lot(lotId, size, weight);
     }
 
     @Override
-    public Lot getFreeLot(int size, double weight) {
-        return null;
+    public Lot getFreeLot(int size, double weight) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException {
+
+        int lotId = getAvLotId(size, weight);
+
+        if (lotId == 0){
+            return new Lot(lotId, size, weight);
+        } else
+            throw new NotEnoughtSpaceException("There are no free lots found");
     }
 
     @Override
-    public Stock getLot(String name, int quantity) {
-        return null;
+    public Stock getLot(String name, int quantity) throws SQLException, ProductNotFoundException {
+        Lot lot = lotWithProduct(name, quantity);
+
+        int lotId = lot.getId();
+        return new Stock(name, lotId, quantity);
     }
 
     @Override
@@ -166,13 +156,75 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         return 0;
     }
 
-
-
     @Override
-    public Lot lotWithProduct(String name, int quantity) {
+    public Lot lotWithProduct(String name, int quantity) throws SQLException, ProductNotFoundException {
+
+        LotsDAO lot = new LotsDAO();
+
+        if (!getProdFromLot().contains(name)){
+            throw new ProductNotFoundException(name);
+
+        } else
+            for (Integer id : getLotsIdsFromStockSet()){
+
+                for (String prod : getProdFromLot(id)){
+
+                    if (prod.equals(name)) {
+                        if (productQuantityInLot(id, prod) >= quantity) {
+                            return new Lot(id, lot.getLotSize(id), lot.getLotWeight(id));
+                        }
+                    }
+                }
+            }
+
         return null;
     }
 
+    private int productQuantityInLot(int lot_id, String name) throws SQLException{
+        String getQuantityQuery = "SELECT SUM(product_quantity)\n" +
+                "AS sumOfWeights\n" +
+                "FROM warehouse.lots_quantity\n" +
+                "WHERE product_name = ? AND lot_id = ?;";
+
+        try (Connection con = getConnection();
+             PreparedStatement getQuantity = con.prepareStatement(getQuantityQuery);
+             ResultSet quantity = setProductNameAndLot(getQuantity, name, lot_id)) {
+            if (quantity.next()){
+                return quantity.getInt(1);
+            }
+        }
+        return 0;
+    }
+
+    private int getAvLotId(int size, double weight) throws SQLException, ProductNotFoundException {
+
+        LotsDAO lots = new LotsDAO();
+        ProductsDAO productsInLot = new ProductsDAO();
+        int lotSize = 0;
+        double lotWeight = 0;
+        int productSize = 0;
+        double productWeight = 0;
+        int avSize = 0;
+        double avWeight = 0;
+
+        for (Integer id : getLotsIdsFromStockSet()) {
+            lotSize = lots.getLotSize(id);
+            lotWeight = lots.getLotWeight(id);
+
+            for (String prod : getProdFromLot(id)) {
+                productSize += productsInLot.getProductSize(prod);
+                productWeight += productsInLot.getProductWeight(prod);
+            }
+
+            avSize = lotSize - productSize;
+            avWeight = lotWeight - productWeight;
+
+            if (size < avSize && weight < avWeight){
+                return id;
+            }
+        }
+        return -1;
+    }
 
     private List<String> getProdFromLot(int lot_id) throws SQLException {
         List<String> productsList = new ArrayList<>();
@@ -226,6 +278,14 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.setString(1, name);
         return ps.executeQuery();
     }
+
+    private ResultSet setProductNameAndLot(PreparedStatement ps, String name, int lot_id) throws SQLException {
+
+        ps.setString(1, name);
+        ps.setInt(2, lot_id);
+        return ps.executeQuery();
+    }
+
 
     private void insertProdInLot(PreparedStatement ps, int lot, String prodName, int quantity) throws SQLException{
 

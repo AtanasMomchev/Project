@@ -60,7 +60,7 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
 
 
     @Override
-    public double totalWeight() {
+    public double totalWeight() throws SQLException {
 
         String getWeightQuery = "SELECT SUM(lots.weightCapacityLots)\n" +
                 "AS sumOfWeights\n" +
@@ -73,14 +73,12 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
                 return weight.getDouble("sumOfWeights");
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return 0;
     }
 
     @Override
-    public int totalSize() {
+    public int totalSize() throws SQLException {
         String getSizeQuery = "SELECT SUM(lots.sizeLots)\n" +
                 "AS sumOfSizes\n" +
                 "FROM warehouse.lots;\n";
@@ -92,8 +90,6 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
             if (size.next()){
                 return size.getInt("sumOfSizes");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return 0;
     }

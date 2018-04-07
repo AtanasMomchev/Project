@@ -1,5 +1,6 @@
 package interfaces;
 
+import exceptions.NotEnoughtSpaceException;
 import exceptions.ProductNotFoundException;
 import model.Lot;
 import model.Stock;
@@ -11,14 +12,14 @@ public interface StockInfo {
 
     double totalTakenWeight() throws SQLException;
 
-    Lot findAvailableSpace(int size,double weight) throws SQLException, ProductNotFoundException;
+    Lot findAvailableSpace(int size,double weight) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException;
 
     void importProduct(int lot_id, String product_name, int quantity) throws SQLException, ProductNotFoundException;
 
-    Lot getFreeLot(int size, double weight);
+    Lot getFreeLot(int size, double weight) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException;
 
     //query koeto vrashta red ot Stocks s ime i quantity
-    Stock getLot(String name, int quantity);
+    Stock getLot(String name, int quantity) throws SQLException, ProductNotFoundException;
 
     //query vryshta obshto kolko quantity imame ot daden product
     int productQuantityInStock(String name) throws SQLException;
@@ -27,5 +28,5 @@ public interface StockInfo {
     void exportProduct(String product_name, int quantity) throws SQLException, ProductNotFoundException;
 
     //namira lot s product s opredeleni broiki
-    Lot lotWithProduct(String name,int quantity);
+    Lot lotWithProduct(String name,int quantity) throws SQLException, ProductNotFoundException;
 }

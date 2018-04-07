@@ -2,10 +2,10 @@ package model;
 
 public class Stock {
     private String Product_name;
-    private String Lot_id;
+    private int Lot_id;
     private int quantity;
 
-    public Stock(String product_name, String lot_id, int quantity) {
+    public Stock(String product_name, int lot_id, int quantity) {
         Product_name = product_name;
         Lot_id = lot_id;
         this.quantity = quantity;
@@ -19,11 +19,11 @@ public class Stock {
         Product_name = product_name;
     }
 
-    public String getLot_id() {
+    public int getLot_id() {
         return Lot_id;
     }
 
-    public void setLot_id(String lot_id) {
+    public void setLot_id(int lot_id) {
         Lot_id = lot_id;
     }
 
