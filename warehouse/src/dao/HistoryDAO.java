@@ -35,10 +35,11 @@ public class HistoryDAO extends AbstractDAO implements HistoryInfo {
             } else System.err.println(operation + "fail \n");
         }
     }
-
+    /*The block below is for testing the methods
     public static void main(String[] args) throws SQLException {
         HistoryDAO historyDAO = new HistoryDAO();
         historyDAO.importOrExport("sweet potato", 30, "import");
 
     }
+    /*/
 }
