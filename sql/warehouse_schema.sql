@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `warehouse`.`lots` (
   `weightCapacityLots` INT(11) NOT NULL,
   PRIMARY KEY (`idLots`))
 ENGINE = InnoDB
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -37,10 +38,11 @@ CREATE TABLE IF NOT EXISTS `warehouse`.`products` (
   `sizeProduct` INT(11) NOT NULL,
   `weightProduct` DECIMAL(11,0) NOT NULL,
   `priceProduct` DECIMAL(2,0) NOT NULL,
-  PRIMARY KEY (`nameProduct`),
-  UNIQUE INDEX `nameProduct_UNIQUE` (`nameProduct` ASC))
+  PRIMARY KEY (`nameProduct`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
+
+CREATE UNIQUE INDEX `nameProduct_UNIQUE` ON `warehouse`.`products` (`nameProduct` ASC);
 
 
 -- -----------------------------------------------------
@@ -52,8 +54,6 @@ CREATE TABLE IF NOT EXISTS `warehouse`.`lots_quantity` (
   `lot_id` INT(11) NOT NULL,
   `product_quantity` INT(11) NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `FK_product_name_idx` (`product_name` ASC),
-  INDEX `FK_lot_id_idx` (`lot_id` ASC),
   CONSTRAINT `FK_lot_id`
     FOREIGN KEY (`lot_id`)
     REFERENCES `warehouse`.`lots` (`idLots`)
@@ -65,28 +65,36 @@ CREATE TABLE IF NOT EXISTS `warehouse`.`lots_quantity` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 6
 DEFAULT CHARACTER SET = utf8;
+
+CREATE INDEX `FK_product_name_idx` ON `warehouse`.`lots_quantity` (`product_name` ASC);
+
+CREATE INDEX `FK_lot_id_idx` ON `warehouse`.`lots_quantity` (`lot_id` ASC);
 
 
 -- -----------------------------------------------------
 -- Table `warehouse`.`history`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `warehouse`.`history` (
-  `id` INT(11) NOT NULL,
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `product_name` VARCHAR(145) NOT NULL,
   `product_quantity` INT(11) NOT NULL,
   `operation` VARCHAR(6) NOT NULL,
   `date` DATETIME(6) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC),
-  INDEX `product_name_idx` (`product_name` ASC),
   CONSTRAINT `product_name`
     FOREIGN KEY (`product_name`)
     REFERENCES `warehouse`.`lots_quantity` (`product_name`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 6
 DEFAULT CHARACTER SET = utf8;
+
+CREATE UNIQUE INDEX `id_UNIQUE` ON `warehouse`.`history` (`id` ASC);
+
+CREATE INDEX `product_name_idx` ON `warehouse`.`history` (`product_name` ASC);
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
