@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.WarehouseExceptions;
 import interfaces.HistoryInfo;
 
 import java.sql.*;
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 
 public class HistoryDAO extends AbstractDAO implements HistoryInfo {
 
-    public void importOrExport(String product, int quantity, String operation) throws SQLException{
+    public void importOrExport(String product, int quantity, String operation) throws SQLException, WarehouseExceptions {
 
         String importOpQuery = "INSERT INTO `warehouse`.`history` (`product_name`, `product_quantity`, " +
                 "`operation`, `date`) VALUES (?, ?, ?, ?);\n";
@@ -32,7 +33,9 @@ public class HistoryDAO extends AbstractDAO implements HistoryInfo {
 
             if (update == 1){
                 System.out.println(operation + " is success \n");
-            } else System.err.println(operation + "fail \n");
+            } else
+                System.err.println(operation + "fail \n");
+                throw new WarehouseExceptions();
         }
     }
     /*The block below is for testing the methods
