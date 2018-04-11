@@ -17,9 +17,10 @@ import java.util.ArrayList;
 public class wareHouseController {
     StockDAO sd = new StockDAO();
     LotsDAO ld = new LotsDAO();
+    ProductsDAO pd = new ProductsDAO();
 
     public ArrayList<Integer> importProduct(String name,int quantity) throws WarehouseExceptions,SQLException {
-        Product product = new ProductsDAO().findByName(name);
+        Product product = pd.findByName(name);
         int ProductsTotalSize = product.getSize() * quantity;
         double ProductsTotalWeight = product.getWeight() * quantity;
         int availableSize = ld.totalSize() - sd.totalTakenSize();
@@ -30,7 +31,7 @@ public class wareHouseController {
         //result is filled with lots_id in which the product is placed
         ArrayList<Integer> result = new ArrayList<>();
 
-        return result = checkForFreeSpace(product, quantity);
+        return result = findLotsToImport(product, quantity);
     }
 
     public ArrayList<Stock> exportProduct(String name, int quantity) throws WarehouseExceptions, SQLException {
@@ -42,9 +43,9 @@ public class wareHouseController {
         int count = quantity;
         int index = 0;
         while (quantity>0){
-            try(sd.lotWithProduct(name,count)){
+            try{
                 Lot found = sd.lotWithProduct(name,count);
-                result.add(sd.getLot(name,quantity));
+//                result.add(sd.getLot(found.getId(),name,quantity));
                 result.get(index).setQuantity(quantity);
                 sd.exportProduct(name,count);
                 quantity = quantity - count;
@@ -58,14 +59,14 @@ public class wareHouseController {
         return result;
     }
 
-    private ArrayList<Integer> checkForFreeSpace(Product p,int quantity)throws NotEnoughtSpaceException{
+    private ArrayList<Integer> findLotsToImport(Product p,int quantity)throws NotEnoughtSpaceException{
         int count = quantity;
         int size = p.getSize() * quantity;
         double weight = p.getWeight() * quantity;
         ArrayList<Integer> lots = new ArrayList<Integer>();
         //finding available space in slots that have products
         while (quantity >0){
-            try(sd.findAvailableSpace(size,weight)){
+            try{
                 Lot found = sd.findAvailableSpace(size,weight);
                 sd.importProduct(found.getId(),p.getName(),count);
                 lots.add(found.getId());
@@ -74,21 +75,20 @@ public class wareHouseController {
                 weight = p.getWeight()*quantity;
                 count = quantity;
             }catch (Exception e){
-                if(e.equals("NotEnoughtSpaceException")) {
                     count--;
                     size = size - p.getSize();
                     weight = weight - p.getWeight();
-                }
             }
             if(count ==0) break;
         }
+        count = quantity;
         if(quantity !=0) {
             //if there are any products left put them in a empty slot/s
             size = p.getSize() * quantity;
             weight = p.getWeight() * quantity;
             while (quantity > 0) {
-                try (sd.getFreeLot(size, weight)) {
-                    Lot found = sd.getFreeLot(size, weight);
+                try {
+                    Lot found = sd.getEmptyLot(size, weight);
                     sd.importProduct(found.getId(), p.getName(), quantity);
                     lots.add(found.getId());
                     quantity = quantity - count;
@@ -100,11 +100,22 @@ public class wareHouseController {
                     size = size - p.getSize();
                     weight = weight - p.getWeight();
                 }
+                if(count == 0) break;
             }
         }
         return lots;
     }
-    public void removeLotAndReangeProducts(int lot_id){
-        sd.
+    public void removeLotAndReangeProducts(int lot_id) throws SQLException{
+        int availableSize = ld.totalSize() - sd.totalTakenSize();
+        double availableWeight = ld.totalWeight() - sd.totalTakenWeight();
+
+    }
+
+    public static void main(String[] args) throws SQLException,WarehouseExceptions{
+        wareHouseController whc = new wareHouseController();
+        ArrayList<Integer> test = whc.importProduct("orange",20);
+        for(int i =0;i<test.size();i++){
+            System.out.println(test.get(i));
+        }
     }
 }

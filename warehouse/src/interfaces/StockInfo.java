@@ -16,7 +16,7 @@ public interface StockInfo {
 
     void importProduct(int lot_id, String product_name, int quantity) throws SQLException, ProductNotFoundException;
 
-    Lot getFreeLot(int size, double weight) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException;
+    Lot getEmptyLot(int size, double weight) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException;
 
     //query koeto vrashta red ot Stocks s ime i quantity
     Stock getLot(String name, int quantity) throws SQLException, ProductNotFoundException;

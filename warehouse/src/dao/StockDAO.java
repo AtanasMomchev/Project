@@ -24,11 +24,15 @@ public class StockDAO extends AbstractDAO implements StockInfo {
 
         Connection con = getConnection();
         PreparedStatement getSize = con.prepareStatement(getProdSize);
-
+        List<String> products = new ArrayList<>();
         for (String s : getProdFromLot()) {
             ResultSet size = setProductName(getSize, s);
-            if (size.next())
-            counter += size.getInt(1)*productQuantityInStock(s);
+
+            if(products.contains(s)) continue;
+            products.add(s);
+            if (size.next()) {
+                counter += size.getInt(1) * productQuantityInStock(s);
+            }
         }
         con.close();
         return counter;
@@ -41,9 +45,11 @@ public class StockDAO extends AbstractDAO implements StockInfo {
                 "WHERE nameProduct=?;";
         Connection con = getConnection();
         PreparedStatement getWeight = con.prepareStatement(getTakenWeightQuery);
-
+        List<String> products = new ArrayList<>();
         for (String s : getProdFromLot()) {
             ResultSet size = setProductName(getWeight, s);
+            if (products.contains(s))continue;
+            products.add(s);
             if (size.next())
                 counter += size.getInt(1)*productQuantityInStock(s);
         }
@@ -57,7 +63,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         String importProdQuery = "INSERT INTO `warehouse`.`lots_quantity` (`product_name`, `lot_id`, `product_quantity`) " +
                 "VALUES (?, ?, ?);\n";
         String updateProdQuantityQuery = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`= ? " +
-                "WHERE `product_name`= ?;\n";
+                "WHERE `lot_id`= ?;\n";
 
         try (Connection con = getConnection();
              PreparedStatement importProd = con.prepareStatement(importProdQuery);
@@ -69,8 +75,8 @@ public class StockDAO extends AbstractDAO implements StockInfo {
                     insertProdInLot(importProd, lot_id, product_name, quantity);
                     System.out.println("Set new product: success ");
                 } else {
-                    int newQuantity = productQuantityInStock(product_name) + quantity ;
-                    updateProdInLot(updateProd, product_name, newQuantity);
+                    int newQuantity = getQuantityOfProductInOneLot(lot_id,product_name) + quantity ;
+                    updateProdInLot(updateProd, lot_id, newQuantity);
                     System.out.println("Update " + product_name + " quantity");
                 }
         }
@@ -89,7 +95,6 @@ public class StockDAO extends AbstractDAO implements StockInfo {
                 System.out.println("Export " + quantity + " " + product_name + "s");
             }
         }
-
     }
 
     @Override
@@ -104,14 +109,21 @@ public class StockDAO extends AbstractDAO implements StockInfo {
     }
 
     @Override
-    public Lot getFreeLot(int size, double weight) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException {
-
-        int lotId = getAvLotId(size, weight);
-
-        if (lotId == 0){
-            return new Lot(lotId, size, weight);
-        } else
-            throw new NotEnoughtSpaceException("There are no free lots found");
+    public Lot getEmptyLot(int size, double weight) throws SQLException, ProductNotFoundException {
+        LotsDAO ld = new LotsDAO();
+        String findEmptyLot = "SELECT idLots \n" +
+                "FROM lots\n" +
+                "join lots_quantity lq on lq.lot_id\n" +
+                "where idLots = ? and lq.lot_id = ?;";
+        for(int id : getLotsIdsFromLotsSet()) {
+            try (Connection con = getConnection();
+                 PreparedStatement ps = con.prepareStatement(findEmptyLot);
+                 ResultSet rs = setLot_id(ps,id)){
+                    if(rs.next()) continue;
+                    return ld.findLotById(id);
+                }
+            }
+        return null;
     }
 
     @Override
@@ -125,7 +137,6 @@ public class StockDAO extends AbstractDAO implements StockInfo {
     @Override
     public int productQuantityInStock(String name) throws SQLException{
         String getQuantityQuery = "SELECT SUM(product_quantity)\n" +
-                "AS sumOfWeights\n" +
                 "FROM warehouse.lots_quantity\n" +
                 "WHERE product_name = ?;";
         try (Connection con = getConnection();
@@ -188,14 +199,16 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         double productWeight = 0;
         int avSize = 0;
         double avWeight = 0;
+        int quantity = 0;
 
         for (Integer id : getLotsIdsFromStockSet()) {
             lotSize = lots.getLotSize(id);
             lotWeight = lots.getLotWeight(id);
 
             for (String prod : getProdFromLot(id)) {
-                productSize += productsInLot.getProductSize(prod);
-                productWeight += productsInLot.getProductWeight(prod);
+                quantity = getQuantityOfProductInOneLot(id,prod);
+                productSize += productsInLot.getProductSize(prod)*quantity;
+                productWeight += productsInLot.getProductWeight(prod)*quantity;
             }
 
             avSize = lotSize - productSize;
@@ -204,6 +217,8 @@ public class StockDAO extends AbstractDAO implements StockInfo {
             if (size < avSize && weight < avWeight){
                 return id;
             }
+            productSize = 0;
+            productWeight = 0;
         }
         return -1;
     }
@@ -260,6 +275,19 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.setString(1, name);
         return ps.executeQuery();
     }
+    private ResultSet setLot_idAndProduct(PreparedStatement ps, int lot_id,String product_name) throws SQLException {
+
+        ps.setInt(1, lot_id);
+        ps.setString(2, product_name);
+        return ps.executeQuery();
+    }
+
+    private ResultSet setLot_id(PreparedStatement ps, int lot_id) throws SQLException {
+
+        ps.setInt(1, lot_id);
+        ps.setInt(2, lot_id);
+        return ps.executeQuery();
+    }
 
     private ResultSet setProductNameAndLot(PreparedStatement ps, String name, int lot_id) throws SQLException {
 
@@ -278,10 +306,10 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.executeUpdate();
     }
 
-    private void updateProdInLot(PreparedStatement ps, String prodName, int quantity) throws SQLException {
+    private void updateProdInLot(PreparedStatement ps, int lot_id, int quantity) throws SQLException {
 
         ps.setInt(1,quantity);
-        ps.setString(2,prodName);
+        ps.setInt(2,lot_id);
         ps.executeUpdate();
     }
 
@@ -306,6 +334,34 @@ public class StockDAO extends AbstractDAO implements StockInfo {
             }
         }
         return lotIds;
+    }
+
+    private Set<Integer> getLotsIdsFromLotsSet() throws SQLException {
+        String getLotIdQuery = "SELECT idLots FROM warehouse.lots;";
+        Set<Integer> lotIds = new HashSet<>();
+
+
+        try (Connection con = getConnection();
+             Statement getLotId = con.createStatement();
+             ResultSet lotId = getLotId.executeQuery(getLotIdQuery)
+        ){
+            while (lotId.next()){
+                lotIds.add(lotId.getInt(1));
+            }
+        }
+        return lotIds;
+    }
+
+    private int getQuantityOfProductInOneLot(int lot_id,String product_name) throws SQLException{
+        String getQuantityQuery = "SELECT SUM(product_quantity) FROM lots_quantity where lot_id = ? and product_name = ?;";
+        int quantity = 0;
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(getQuantityQuery);
+            ResultSet rs = setLot_idAndProduct(ps,lot_id,product_name)){
+                if(rs.next())
+                    return quantity = rs.getInt(1);
+            }
+        return quantity;
     }
 
         /*The block below is for testing the methods

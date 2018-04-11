@@ -1,6 +1,7 @@
 package dao;
 
 import interfaces.LotsInfo;
+import model.Lot;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         try (Connection con = getConnection();
              Statement getLotId = con.createStatement();
              ResultSet lotId = getLotId.executeQuery(getLotIdQuery)
-        ){
-            while (lotId.next()){
+        ) {
+            while (lotId.next()) {
                 lotIds.add(lotId.getInt(1));
             }
         }
@@ -32,11 +33,11 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
 
         try (Connection con = getConnection();
              PreparedStatement setLot = con.prepareStatement(setLotQuery)
-        ){
-            setLot.setInt(1,size);
-            setLot.setDouble(2,weightCap);
+        ) {
+            setLot.setInt(1, size);
+            setLot.setDouble(2, weightCap);
             int set = setLot.executeUpdate();
-            if (set == 1){
+            if (set == 1) {
                 System.out.println("Set new lot: success ");
             }
         }
@@ -51,8 +52,8 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         try (Connection con = getConnection();
              PreparedStatement getLotSize = con.prepareStatement(getLotSizeQuery);
              ResultSet size = getSize(getLotSize, lot_id)
-        ){
-            if (size.next()){
+        ) {
+            if (size.next()) {
                 return size.getInt(1);
             }
         }
@@ -68,8 +69,8 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         try (Connection con = getConnection();
              PreparedStatement getLotSize = con.prepareStatement(getLotWeightQuery);
              ResultSet size = getWeight(getLotSize, lot_id)
-        ){
-            if (size.next()){
+        ) {
+            if (size.next()) {
                 return size.getDouble(1);
             }
         }
@@ -85,7 +86,7 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
                 "FROM warehouse.lots;\n";
         try (Connection con = getConnection();
              Statement getWeight = con.createStatement();
-             ResultSet weight = getWeight.executeQuery(getWeightQuery)){
+             ResultSet weight = getWeight.executeQuery(getWeightQuery)) {
 
             if (weight.next()) {
                 return weight.getDouble("sumOfWeights");
@@ -103,13 +104,30 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         try (
                 Connection con = getConnection();
                 Statement getSize = con.createStatement();
-                ResultSet size = getSize.executeQuery(getSizeQuery))
-        {
-            if (size.next()){
+                ResultSet size = getSize.executeQuery(getSizeQuery)) {
+            if (size.next()) {
                 return size.getInt("sumOfSizes");
             }
         }
         return 0;
+    }
+
+    public Lot findLotById(int id) throws SQLException {
+        String getLotQuery = "select * from lots where idLots = ?;";
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(getLotQuery);
+             ResultSet rs = getLot(ps,id)) {
+            while (rs.next()){
+                  Lot lot = new Lot(rs.getInt(1),rs.getInt(2),rs.getDouble(3));
+                  return lot;
+            }
+        }
+        return null;
+    }
+
+    private ResultSet getLot(PreparedStatement ps, int id) throws SQLException {
+        ps.setInt(1,id);
+        return ps.executeQuery();
     }
 
     private ResultSet getSize(PreparedStatement ps, int id) throws SQLException {
