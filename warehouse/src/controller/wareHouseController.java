@@ -46,7 +46,11 @@ public class wareHouseController {
             try{
                 Lot found = sd.lotWithProduct(name,count);
 //                result.add(sd.getLot(found.getId(),name,quantity));
-                result.get(index).setQuantity(quantity);
+                if (result.size() > 0) {
+                    result.get(index).setQuantity(quantity);
+                } else {
+                    result.add(new Stock(name, found.getId(),quantity));
+                }
                 sd.exportProduct(name,count);
                 quantity = quantity - count;
                 count = quantity;
@@ -113,9 +117,11 @@ public class wareHouseController {
 
     public static void main(String[] args) throws SQLException,WarehouseExceptions{
         wareHouseController whc = new wareHouseController();
-        ArrayList<Integer> test = whc.importProduct("orange",20);
-        for(int i =0;i<test.size();i++){
-            System.out.println(test.get(i));
-        }
+        ArrayList<Integer> test = whc.importProduct("orange",5);
+//        for(int i =0;i<test.size();i++){
+//            System.out.println(test.get(i));
+//        }
+//        ArrayList<Stock> stocks = whc.exportProduct("orange", 2);
+
     }
 }

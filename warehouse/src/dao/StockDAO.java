@@ -85,13 +85,22 @@ public class StockDAO extends AbstractDAO implements StockInfo {
     @Override
     public void exportProduct(String product_name, int quantity) throws SQLException, ProductNotFoundException {
         String exportProductQuery = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`=? WHERE `product_name`=?;\n";
+        String deleteProductQuery = "DELETE FROM `warehouse`.`lots_quantity`\n" +
+                "WHERE `product_quantity`=? AND `product_name`=?;\n";
 
         try (Connection con = getConnection();
-            PreparedStatement exportProduct = con.prepareStatement(exportProductQuery)
+            PreparedStatement exportProduct = con.prepareStatement(exportProductQuery);
+            PreparedStatement deleteProduct = con.prepareStatement(deleteProductQuery)
         ) {
             if (getProdFromLot().contains(product_name)) {
                 int newQuantity = productQuantityInStock(product_name) - quantity;
-                exportProdFromLot(exportProduct, product_name, newQuantity);
+
+                if (newQuantity == 0)
+                {
+                    exportProdFromLot(deleteProduct, product_name, quantity);
+                } else {
+                    exportProdFromLot(exportProduct, product_name, newQuantity);
+                }
                 System.out.println("Export " + quantity + " " + product_name + "s");
             }
         }
