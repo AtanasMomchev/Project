@@ -223,7 +223,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
             avSize = lotSize - productSize;
             avWeight = lotWeight - productWeight;
 
-            if (size < avSize && weight < avWeight){
+            if (size <= avSize && weight <= avWeight){
                 return id;
             }
             productSize = 0;

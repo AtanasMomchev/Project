@@ -117,7 +117,7 @@ public class wareHouseController {
 
     public static void main(String[] args) throws SQLException,WarehouseExceptions{
         wareHouseController whc = new wareHouseController();
-        ArrayList<Integer> test = whc.importProduct("orange",5);
+        ArrayList<Integer> test = whc.importProduct("orange",20);
 //        for(int i =0;i<test.size();i++){
 //            System.out.println(test.get(i));
 //        }
