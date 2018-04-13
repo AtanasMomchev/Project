@@ -1,6 +1,7 @@
 package controller;
 
 
+import dao.HistoryDAO;
 import dao.LotsDAO;
 import dao.ProductsDAO;
 import dao.StockDAO;
@@ -18,8 +19,9 @@ public class wareHouseController {
     StockDAO sd = new StockDAO();
     LotsDAO ld = new LotsDAO();
     ProductsDAO pd = new ProductsDAO();
+    HistoryDAO hd = new HistoryDAO();
 
-    public ArrayList<Integer> importProduct(String name,int quantity) throws WarehouseExceptions,SQLException {
+    public ArrayList<Stock> importProduct(String name,int quantity) throws WarehouseExceptions,SQLException {
         Product product = pd.findByName(name);
         int ProductsTotalSize = product.getSize() * quantity;
         double ProductsTotalWeight = product.getWeight() * quantity;
@@ -29,13 +31,14 @@ public class wareHouseController {
         if(ProductsTotalSize > availableSize || ProductsTotalWeight > availableWeight)
             throw new NotEnoughtSpaceException("Import package to large!");
         //result is filled with lots_id in which the product is placed
-        ArrayList<Integer> result = new ArrayList<>();
-
+        ArrayList<Stock> result = new ArrayList<>();
+        hd.importOrExport(name,quantity,"import");
         return result = findLotsToImport(product, quantity);
     }
 
     public ArrayList<Stock> exportProduct(String name, int quantity) throws WarehouseExceptions, SQLException {
         Product p = new ProductsDAO().findByName(name);
+        int q = quantity;
         //check if there is enough products in the warehouse to export
         if(sd.productQuantityInStock(name) < quantity) throw new NotEnoughtProductsInSupply("Insufficient quantity in supply!");
 
@@ -46,34 +49,33 @@ public class wareHouseController {
             try{
                 Lot found = sd.lotWithProduct(name,count);
 //                result.add(sd.getLot(found.getId(),name,quantity));
-                if (result.size() > 0) {
-                    result.get(index).setQuantity(quantity);
-                } else {
-                    result.add(new Stock(name, found.getId(),quantity));
-                }
-                sd.exportProduct(name,count);
+                result.add(new Stock(name, found.getId(),quantity));
+                sd.exportProduct(found.getId(),name,count);
                 quantity = quantity - count;
                 count = quantity;
                 index++;
             }catch (Exception e){
+                System.out.println(e);
+                System.out.println(e);
+                System.out.println(e);
                 count--;
             }
         }
-
+        hd.importOrExport(name,q,"export");
         return result;
     }
 
-    private ArrayList<Integer> findLotsToImport(Product p,int quantity)throws NotEnoughtSpaceException{
+    private ArrayList<Stock> findLotsToImport(Product p,int quantity)throws NotEnoughtSpaceException{
         int count = quantity;
         int size = p.getSize() * quantity;
         double weight = p.getWeight() * quantity;
-        ArrayList<Integer> lots = new ArrayList<Integer>();
+        ArrayList<Stock> result = new ArrayList<Stock>();
         //finding available space in slots that have products
         while (quantity >0){
             try{
                 Lot found = sd.findAvailableSpace(size,weight);
                 sd.importProduct(found.getId(),p.getName(),count);
-                lots.add(found.getId());
+                result.add(new Stock(p.getName(),found.getId(),quantity));
                 quantity = quantity - count;
                 size = p.getSize()*quantity;
                 weight = p.getWeight()*quantity;
@@ -94,7 +96,7 @@ public class wareHouseController {
                 try {
                     Lot found = sd.getEmptyLot(size, weight);
                     sd.importProduct(found.getId(), p.getName(), quantity);
-                    lots.add(found.getId());
+                    result.add(new Stock(p.getName(),found.getId(),quantity));
                     quantity = quantity - count;
                     size = p.getSize()*quantity;
                     weight = p.getWeight()*quantity;
@@ -107,7 +109,7 @@ public class wareHouseController {
                 if(count == 0) break;
             }
         }
-        return lots;
+        return result;
     }
     public void removeLotAndReangeProducts(int lot_id) throws SQLException{
         int availableSize = ld.totalSize() - sd.totalTakenSize();
@@ -117,9 +119,9 @@ public class wareHouseController {
 
     public static void main(String[] args) throws SQLException,WarehouseExceptions{
         wareHouseController whc = new wareHouseController();
-        ArrayList<Integer> test = whc.importProduct("orange",20);
+        ArrayList<Stock> test = whc.importProduct("orange",10);
 //        for(int i =0;i<test.size();i++){
-//            System.out.println(test.get(i));
+//            System.out.printf("%d, %s,%d",test.get(i).getLot_id(),test.get(i).getProduct_name(),test.get(i).getQuantity());
 //        }
 //        ArrayList<Stock> stocks = whc.exportProduct("orange", 2);
 

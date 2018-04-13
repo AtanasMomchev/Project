@@ -33,9 +33,10 @@ public class HistoryDAO extends AbstractDAO implements HistoryInfo {
 
             if (update == 1){
                 System.out.println(operation + " is success \n");
-            } else
+            } else {
                 System.err.println(operation + "fail \n");
                 throw new WarehouseExceptions();
+            }
         }
     }
     /*The block below is for testing the methods

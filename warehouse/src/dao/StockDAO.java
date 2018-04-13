@@ -83,23 +83,23 @@ public class StockDAO extends AbstractDAO implements StockInfo {
     }
 
     @Override
-    public void exportProduct(String product_name, int quantity) throws SQLException, ProductNotFoundException {
-        String exportProductQuery = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`=? WHERE `product_name`=?;\n";
+    public void exportProduct(int lot_id,String product_name, int quantity) throws SQLException, ProductNotFoundException {
+        String exportProductQuery = "UPDATE `warehouse`.`lots_quantity` SET `product_quantity`=? WHERE `product_name`=? and lot_id = ?;\n";
         String deleteProductQuery = "DELETE FROM `warehouse`.`lots_quantity`\n" +
-                "WHERE `product_quantity`=? AND `product_name`=?;\n";
+                "WHERE `product_quantity`=? AND `product_name`=? and lot_id = ?;\n";
 
         try (Connection con = getConnection();
             PreparedStatement exportProduct = con.prepareStatement(exportProductQuery);
             PreparedStatement deleteProduct = con.prepareStatement(deleteProductQuery)
         ) {
             if (getProdFromLot().contains(product_name)) {
-                int newQuantity = productQuantityInStock(product_name) - quantity;
+                int newQuantity = getQuantityOfProductInOneLot(lot_id,product_name) - quantity;
 
                 if (newQuantity == 0)
                 {
-                    exportProdFromLot(deleteProduct, product_name, quantity);
+                    exportProdFromLot(deleteProduct, product_name, quantity,lot_id);
                 } else {
-                    exportProdFromLot(exportProduct, product_name, newQuantity);
+                    exportProdFromLot(exportProduct, product_name, newQuantity,lot_id);
                 }
                 System.out.println("Export " + quantity + " " + product_name + "s");
             }
@@ -322,10 +322,11 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.executeUpdate();
     }
 
-    private void exportProdFromLot(PreparedStatement ps, String prodName, int quantity) throws SQLException {
+    private void exportProdFromLot(PreparedStatement ps, String prodName, int quantity,int lot_id) throws SQLException {
 
         ps.setInt(1, quantity);
         ps.setString(2, prodName);
+        ps.setInt(3,lot_id);
         ps.executeUpdate();
     }
 
