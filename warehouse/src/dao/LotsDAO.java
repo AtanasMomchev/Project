@@ -125,9 +125,26 @@ public class LotsDAO extends AbstractDAO implements LotsInfo {
         return null;
     }
 
+    public boolean deleteLot(int lot_id)throws SQLException{
+        String deleteLot = "delete from lots where idLots = ?;";
+
+        try(Connection con = getConnection();
+            PreparedStatement ps = con.prepareStatement(deleteLot)){
+            getLot2(ps,lot_id);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
     private ResultSet getLot(PreparedStatement ps, int id) throws SQLException {
         ps.setInt(1,id);
         return ps.executeQuery();
+    }
+
+    private void getLot2(PreparedStatement ps, int id) throws SQLException {
+        ps.setInt(1,id);
+        ps.executeUpdate();
     }
 
     private ResultSet getSize(PreparedStatement ps, int id) throws SQLException {

@@ -16,10 +16,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class wareHouseController {
-    StockDAO sd = new StockDAO();
-    LotsDAO ld = new LotsDAO();
-    ProductsDAO pd = new ProductsDAO();
-    HistoryDAO hd = new HistoryDAO();
+    private StockDAO sd = new StockDAO();
+    private LotsDAO ld = new LotsDAO();
+    private ProductsDAO pd = new ProductsDAO();
+    private HistoryDAO hd = new HistoryDAO();
 
     public ArrayList<Stock> importProduct(String name,int quantity) throws WarehouseExceptions,SQLException {
         Product product = pd.findByName(name);
@@ -55,9 +55,7 @@ public class wareHouseController {
                 count = quantity;
                 index++;
             }catch (Exception e){
-                System.out.println(e);
-                System.out.println(e);
-                System.out.println(e);
+
                 count--;
             }
         }
@@ -69,7 +67,7 @@ public class wareHouseController {
         int count = quantity;
         int size = p.getSize() * quantity;
         double weight = p.getWeight() * quantity;
-        ArrayList<Stock> result = new ArrayList<Stock>();
+        ArrayList<Stock> result = new ArrayList<>();
         //finding available space in slots that have products
         while (quantity >0){
             try{
@@ -111,15 +109,27 @@ public class wareHouseController {
         }
         return result;
     }
-    public void removeLotAndReangeProducts(int lot_id) throws SQLException{
+    public ArrayList<Stock> removeLotAndReangeProducts(int lot_id) throws SQLException,NotEnoughtSpaceException,WarehouseExceptions{
         int availableSize = ld.totalSize() - sd.totalTakenSize();
         double availableWeight = ld.totalWeight() - sd.totalTakenWeight();
+        int sizeInLot = sd.getTotalTakenSizeInLot(lot_id);
+        double weightInLot = sd.getTotalTakenWeightInLot(lot_id);
+        if(availableSize < sizeInLot || availableWeight < weightInLot) throw new NotEnoughtSpaceException("No space to rearange products!");
 
+        int quantity;
+        ArrayList<Stock> rearrangedProducts = null;
+        for(String product : sd.getProdFromLot(lot_id)){
+            quantity = sd.getQuantityOfProductInOneLot(lot_id,product);
+            rearrangedProducts = importProduct(product,quantity);
+            sd.deleteRow(lot_id);
+            if(!ld.deleteLot(lot_id)) throw new WarehouseExceptions("Could not delete lot for some reason!");
+        }
+        return rearrangedProducts;
     }
 
     public static void main(String[] args) throws SQLException,WarehouseExceptions{
         wareHouseController whc = new wareHouseController();
-        ArrayList<Stock> test = whc.importProduct("orange",10);
+        ArrayList<Stock> test = whc.removeLotAndReangeProducts(7);
 //        for(int i =0;i<test.size();i++){
 //            System.out.printf("%d, %s,%d",test.get(i).getLot_id(),test.get(i).getProduct_name(),test.get(i).getQuantity());
 //        }

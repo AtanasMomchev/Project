@@ -127,7 +127,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         for(int id : getLotsIdsFromLotsSet()) {
             try (Connection con = getConnection();
                  PreparedStatement ps = con.prepareStatement(findEmptyLot);
-                 ResultSet rs = setLot_id(ps,id)){
+                 ResultSet rs = setLots_id(ps,id)){
                     if(rs.next()) continue;
                     return ld.findLotById(id);
                 }
@@ -232,7 +232,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         return -1;
     }
 
-    private List<String> getProdFromLot(int lot_id) throws SQLException {
+    public List<String> getProdFromLot(int lot_id) throws SQLException {
         List<String> productsList = new ArrayList<>();
         String getProdQuery = "SELECT product_name FROM warehouse.lots_quantity " +
                 "WHERE lot_id=" + lot_id + ";";
@@ -291,7 +291,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         return ps.executeQuery();
     }
 
-    private ResultSet setLot_id(PreparedStatement ps, int lot_id) throws SQLException {
+    private ResultSet setLots_id(PreparedStatement ps, int lot_id) throws SQLException {
 
         ps.setInt(1, lot_id);
         ps.setInt(2, lot_id);
@@ -330,6 +330,11 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.executeUpdate();
     }
 
+    private void getLot2(PreparedStatement ps, int id) throws SQLException {
+        ps.setInt(1,id);
+        ps.executeUpdate();
+    }
+
     private Set<Integer> getLotsIdsFromStockSet() throws SQLException {
         String getLotIdQuery = "SELECT lot_id FROM warehouse.lots_quantity;";
         Set<Integer> lotIds = new HashSet<>();
@@ -362,7 +367,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         return lotIds;
     }
 
-    private int getQuantityOfProductInOneLot(int lot_id,String product_name) throws SQLException{
+    public int getQuantityOfProductInOneLot(int lot_id,String product_name) throws SQLException{
         String getQuantityQuery = "SELECT SUM(product_quantity) FROM lots_quantity where lot_id = ? and product_name = ?;";
         int quantity = 0;
         try (Connection con = getConnection();
@@ -373,6 +378,56 @@ public class StockDAO extends AbstractDAO implements StockInfo {
             }
         return quantity;
     }
+
+
+
+    public int getTotalTakenSizeInLot(int lot_id)throws SQLException{
+        String getProductSize = "select sizeProduct from products where nameProduct = ?;";
+        int totalSize = 0;
+        int quantity;
+        for(String product : getProdFromLot(lot_id)){
+            quantity = getQuantityOfProductInOneLot(lot_id,product);
+            try(Connection con = getConnection();
+                PreparedStatement ps = con.prepareStatement(getProductSize);
+                ResultSet rs = setProductName(ps,product)){
+                while (rs.next()){
+                    totalSize += rs.getInt(1)*quantity;
+                }
+            }
+        }
+        return totalSize;
+    }
+
+    public double getTotalTakenWeightInLot(int lot_id)throws SQLException{
+        String getProductSize = "select weightProduct from products where nameProduct = ?;";
+        double totalWeight = 0;
+        int quantity;
+        for(String product : getProdFromLot(lot_id)){
+            quantity = getQuantityOfProductInOneLot(lot_id,product);
+            try(Connection con = getConnection();
+                PreparedStatement ps = con.prepareStatement(getProductSize);
+                ResultSet rs = setProductName(ps,product)){
+                while (rs.next()){
+                    totalWeight += rs.getInt(1)*quantity;
+                }
+            }
+        }
+        return totalWeight;
+    }
+
+    public boolean deleteRow(int lot_id)throws SQLException{
+        String deleteLot = "delete from lots_quantity where lot_id = ?;";
+
+        try(Connection con = getConnection();
+            PreparedStatement ps = con.prepareStatement(deleteLot)){
+            getLot2(ps,lot_id);
+            return true;
+        }catch (Exception e){
+            System.out.println(e);
+            return false;
+        }
+    }
+
 
         /*The block below is for testing the methods
     public static void main(String[] args) throws SQLException, ProductNotFoundException, NotEnoughtSpaceException {
