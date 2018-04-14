@@ -248,7 +248,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         }
     }
 
-    private List<String> getProdFromLot() throws SQLException {
+    List<String> getProdFromLot() throws SQLException {
         List<String> productsList = new ArrayList<>();
         String getProdQuery = "SELECT product_name FROM warehouse.lots_quantity";
 

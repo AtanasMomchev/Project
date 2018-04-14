@@ -1,5 +1,6 @@
 package dao;
 
+import exceptions.ProductAvailableInStock;
 import exceptions.ProductExistException;
 import exceptions.ProductNotFoundException;
 import interfaces.ProductsInfo;
@@ -10,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 public class ProductsDAO extends AbstractDAO implements ProductsInfo {
 
@@ -30,17 +32,22 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
     }
 
     @Override
-    public void dropProduct(String name) throws SQLException {
+    public void dropProduct(String name) throws SQLException, ProductAvailableInStock {
 
         String deleteProdQuery = "DELETE FROM `warehouse`.`products`\n" +
                 "WHERE nameProduct = ?;";
 
-        try (Connection con = getConnection();
-             PreparedStatement deleteProd = con.prepareStatement(deleteProdQuery)
-        ){
-            deleteProduct(deleteProd, name);
-            System.out.println(name + " is dropped ");
-        }
+        StockDAO stockDAO = new StockDAO();
+        int prodQuantity = stockDAO.productQuantityInStock(name);
+
+            try (Connection con = getConnection();
+                 PreparedStatement deleteProd = con.prepareStatement(deleteProdQuery)
+            ) {
+                deleteProduct(deleteProd, name);
+                System.out.println(name + " is dropped ");
+            } catch (MySQLIntegrityConstraintViolationException ex){
+                throw new ProductAvailableInStock("There are " + prodQuantity + " of " + name + " in stock");
+            }
     }
 
     private void deleteProduct(PreparedStatement ps, String name) throws SQLException {
@@ -106,8 +113,9 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
     }
 
         /*The block below is for testing the methods
-    public static void main(String[] args) throws ProductNotFoundException, SQLException, ProductExistException {
+    public static void main(String[] args) throws ProductNotFoundException, SQLException, ProductExistException, ProductAvailableInStock {
         ProductsDAO pr = new ProductsDAO();
+        pr.dropProduct("kiwi");
 //        System.out.println(pr.findByName("banana").getName());
 //        pr.setProduct("eggs", 3, 1, 2);
 //        pr.dropProduct("watermelon");
