@@ -335,7 +335,7 @@ public class StockDAO extends AbstractDAO implements StockInfo {
         ps.executeUpdate();
     }
 
-    private Set<Integer> getLotsIdsFromStockSet() throws SQLException {
+    public Set<Integer> getLotsIdsFromStockSet() throws SQLException {
         String getLotIdQuery = "SELECT lot_id FROM warehouse.lots_quantity;";
         Set<Integer> lotIds = new HashSet<>();
 

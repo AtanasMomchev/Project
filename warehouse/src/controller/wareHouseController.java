@@ -127,6 +127,32 @@ public class wareHouseController {
         return rearrangedProducts;
     }
 
+    public double[] totalTakenSpaceInWarehouse()throws SQLException{
+        double [] totalTakenSpace = new double[2];
+        totalTakenSpace [0] = sd.totalTakenSize();
+        totalTakenSpace [1] = sd.totalTakenWeight();
+        return totalTakenSpace;
+    }
+
+    public double[] totalFreeSpaceInWarehouse()throws  SQLException{
+        double [] availableSpace = new double[2];
+        availableSpace [0] = ld.totalSize() - sd.totalTakenSize();
+        availableSpace [1] = ld.totalWeight() - sd.totalTakenWeight();
+        return availableSpace;
+    }
+
+    public double totalPriceOfProductsInLots()throws SQLException,WarehouseExceptions{
+        double moneyTotal = 0;
+        int qunatity;
+        for(int id : sd.getLotsIdsFromStockSet()){
+            for(String product : sd.getProdFromLot(id)){
+                qunatity = sd.getQuantityOfProductInOneLot(id,product);
+                moneyTotal += pd.findByName(product).getPrice()*qunatity;
+            }
+        }
+        return moneyTotal;
+    }
+
     public static void main(String[] args) throws SQLException,WarehouseExceptions{
         wareHouseController whc = new wareHouseController();
         ArrayList<Stock> test = whc.removeLotAndReangeProducts(7);
