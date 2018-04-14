@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 public class ProductsDAO extends AbstractDAO implements ProductsInfo {
 
@@ -111,6 +110,13 @@ public class ProductsDAO extends AbstractDAO implements ProductsInfo {
         Product prod = findByName(prodName);
         return prod.getWeight();
     }
+
+    public double getProductPrice(String prodName) throws SQLException, ProductNotFoundException {
+
+        Product prod = findByName(prodName);
+        return prod.getPrice();
+    }
+
 
         /*The block below is for testing the methods
     public static void main(String[] args) throws ProductNotFoundException, SQLException, ProductExistException, ProductAvailableInStock {

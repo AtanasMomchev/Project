@@ -7,13 +7,18 @@ import dao.ProductsDAO;
 import dao.StockDAO;
 import exceptions.NotEnoughtProductsInSupply;
 import exceptions.NotEnoughtSpaceException;
+import exceptions.ProductNotFoundException;
 import exceptions.WarehouseExceptions;
 import model.Lot;
 import model.Product;
 import model.Stock;
 
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class wareHouseController {
     private StockDAO sd = new StockDAO();
@@ -143,19 +148,75 @@ public class wareHouseController {
 
     public double totalPriceOfProductsInLots()throws SQLException,WarehouseExceptions{
         double moneyTotal = 0;
-        int qunatity;
+        int quantity;
+
         for(int id : sd.getLotsIdsFromStockSet()){
             for(String product : sd.getProdFromLot(id)){
-                qunatity = sd.getQuantityOfProductInOneLot(id,product);
-                moneyTotal += pd.findByName(product).getPrice()*qunatity;
+                quantity = sd.getQuantityOfProductInOneLot(id,product);
+                moneyTotal += pd.findByName(product).getPrice()*quantity;
             }
         }
         return moneyTotal;
     }
 
+    public double averageTransactionPerDay(int days) throws SQLException {
+        List<Timestamp> dates = hd.getDate();
+        LocalDateTime targetDate = LocalDateTime.now().minusDays(days);
+        double counter = 0;
+
+        for (Timestamp ts : dates){
+            if (ts.toLocalDateTime().isAfter(targetDate)){
+                counter++;
+            }
+        }
+        return counter/days;
+    }
+
+    public double[] turnoverPriceAndWeight(int days) throws SQLException, ProductNotFoundException {
+        LocalDate targetDate = LocalDate.now().minusDays(days);
+        double[] priceAndWeight;
+
+        priceAndWeight = hd.getPriceAndWeight(targetDate);
+
+        return priceAndWeight;
+    }
+
+    public void productsAndQuantity(int id_lot) throws SQLException {
+        int quantity;
+        System.out.format("%-15s | %-15s \n", "product", "quantity");
+        System.out.println("---------------- ---------");
+
+        for (String s :sd.getProdFromLot(id_lot)) {
+            quantity = sd.getQuantityOfProductInOneLot(id_lot, s);
+            System.out.format("%-15s | %-15d \n", s, quantity);
+        }
+    }
+
+    public void productQuantityAndDistribution(String name) throws SQLException {
+
+        System.out.println(sd.productQuantityInStock(name));
+        System.out.println(sd.getLotsIdsFromStockSet());
+        for (Integer i : sd.getLotsIdsFromStockSet())
+        System.out.println(sd.getQuantityOfProductInOneLot(i, name));
+
+    }
+
     public static void main(String[] args) throws SQLException,WarehouseExceptions{
         wareHouseController whc = new wareHouseController();
-        ArrayList<Stock> test = whc.removeLotAndReangeProducts(7);
+//        whc.importProduct("eggs", 2);
+//        whc.productsAndQuantity(1);
+
+        whc.productQuantityAndDistribution("eggs");
+//        for (Double d : whc.turnoverPriceAndWeight(2))
+//        System.out.println(d);
+//        System.out.println(whc.averageTransactionPerDay(2));
+//        ArrayList<Stock> test = whc.removeLotAndReangeProducts(7);
+
+//        for (Double d : whc.totalFreeSpaceInWarehouse()){
+//            System.out.println(d);
+//        }
+//        System.out.println(whc.totalPriceOfProductsInLots());
+
 //        for(int i =0;i<test.size();i++){
 //            System.out.printf("%d, %s,%d",test.get(i).getLot_id(),test.get(i).getProduct_name(),test.get(i).getQuantity());
 //        }

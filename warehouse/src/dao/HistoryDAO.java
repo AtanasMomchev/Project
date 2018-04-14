@@ -1,10 +1,14 @@
 package dao;
 
+import exceptions.ProductNotFoundException;
 import exceptions.WarehouseExceptions;
 import interfaces.HistoryInfo;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class HistoryDAO extends AbstractDAO implements HistoryInfo {
@@ -39,6 +43,65 @@ public class HistoryDAO extends AbstractDAO implements HistoryInfo {
             }
         }
     }
+
+    public List<Timestamp> getDate() throws SQLException {
+        String getDateQuery = "SELECT `history`.`date`\n" +
+                "FROM `warehouse`.`history`;";
+        List<Timestamp> dates = new ArrayList<>();
+
+        try (Connection con = getConnection();
+            Statement getDate = con.createStatement();
+            ResultSet date = getDate.executeQuery(getDateQuery)){
+            while (date.next()) {
+                dates.add(date.getTimestamp(1));
+            }
+        }
+        return dates;
+    }
+
+    public double[] getPriceAndWeight(LocalDate date) throws SQLException, ProductNotFoundException {
+        String getProductAndQuantityQuery = "SELECT `history`.`product_name`,\n" +
+                "`history`.`product_quantity`\n" +
+                "FROM `warehouse`.`history`\n" +
+                "WHERE date > " + date + ";";
+        ProductsDAO pd = new ProductsDAO();
+        double[] tempTurnover = new double[2];
+
+        double cashCounter = 0;
+        double weightCounter = 0;
+        double price;
+        double quantity;
+        double weight;
+        String product;
+
+        try (Connection con = getConnection();
+            Statement getProductAndQuantity = con.createStatement();
+            ResultSet productAndQuantity = getProductAndQuantity.executeQuery(getProductAndQuantityQuery)){
+
+            while (productAndQuantity.next()){
+                product = productAndQuantity.getString(1);
+                quantity = productAndQuantity.getInt(2);
+
+                price = pd.getProductPrice(product);
+                weight = pd.getProductWeight(product);
+                cashCounter += price * quantity;
+                weightCounter += weight * quantity;
+            }
+        }
+        tempTurnover[0] = cashCounter;
+        tempTurnover[1] = weightCounter;
+        return tempTurnover;
+    }
+
+
+    private ResultSet setProdQuantiy(PreparedStatement ps, String prodName) throws SQLException {
+        ps.setString(1, prodName);
+
+        return ps.executeQuery();
+    }
+
+
+
     /*The block below is for testing the methods
     public static void main(String[] args) throws SQLException {
         HistoryDAO historyDAO = new HistoryDAO();
