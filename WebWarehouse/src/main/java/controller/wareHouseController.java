@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class wareHouseController {
 
     private StockDAO sd = new StockDAO();
@@ -172,6 +173,8 @@ public class wareHouseController {
         return counter/days;
     }
 
+
+
     public double[] turnoverPriceAndWeight(int days) throws SQLException, ProductNotFoundException {
         LocalDate targetDate = LocalDate.now().minusDays(days);
         double[] priceAndWeight;
@@ -181,15 +184,16 @@ public class wareHouseController {
         return priceAndWeight;
     }
 
-    public void productsAndQuantity(int id_lot) throws SQLException {
+    public List<String[]> productsAndQuantity(int id_lot) throws SQLException {
+        List<String[]> ls = new ArrayList<>();
         int quantity;
-        System.out.format("%-15s | %-15s \n", "product", "quantity");
-        System.out.println("---------------- ---------");
 
         for (String s :sd.getProdFromLot(id_lot)) {
             quantity = sd.getQuantityOfProductInOneLot(id_lot, s);
-            System.out.format("%-15s | %-15d \n", s, quantity);
+
+        ls.add(new String[]{s, Integer.toString(quantity)});
         }
+        return ls;
     }
 
     public void productQuantityAndDistribution(String name) throws SQLException {
@@ -201,20 +205,12 @@ public class wareHouseController {
 
     }
 
-    public int get(String name){
-        try {
-        ProductsDAO pr = new ProductsDAO();
-        return pr.getProductSize("eggs");
-        } catch (SQLException | ProductNotFoundException sqlEx){
-            System.out.println(sqlEx);
-        }
-        return 0;
-    }
+    public static void main(String[] args) throws SQLException, WarehouseExceptions {
 
 
-
-//    public static void main(String[] args) throws SQLException, WarehouseExceptions {
-//        wareHouseController whc = new wareHouseController();
+        wareHouseController whc = new wareHouseController();
+            System.out.println(whc.averageTransactionPerDay(10));
+}
 //        whc.importProduct("eggs", 1);
 //        ProductsDAO pr = new ProductsDAO();
 //        System.out.println(pr.getProductPrice("eggs"));
@@ -235,6 +231,7 @@ public class wareHouseController {
 //            System.out.printf("%d, %s,%d",test.get(i).getLot_id(),test.get(i).getProduct_name(),test.get(i).getQuantity());
 //        }
 //        ArrayList<Stock> stocks = whc.exportProduct("orange", 2);
+
 
 }
 

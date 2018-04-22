@@ -8,7 +8,8 @@ public class AbstractDAO {
 
     Connection getConnection() throws SQLException {
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+//            Class.forName("com.mysql.jdbc.Driver").newInstance();
 
             final String DBMS_CONN_STRING = "jdbc:mysql://localhost:3306/warehouse?verifyServerCertificate=false&useSSL=true";
             final String DBMS_USERNAME = "root";
