@@ -201,9 +201,23 @@ public class wareHouseController {
 
     }
 
-    public static void main(String[] args) throws SQLException, WarehouseExceptions {
-        wareHouseController whc = new wareHouseController();
-        whc.importProduct("eggs", 1);
+    public int get(String name){
+        try {
+        ProductsDAO pr = new ProductsDAO();
+        return pr.getProductSize("eggs");
+        } catch (SQLException | ProductNotFoundException sqlEx){
+            System.out.println(sqlEx);
+        }
+        return 0;
+    }
+
+
+
+//    public static void main(String[] args) throws SQLException, WarehouseExceptions {
+//        wareHouseController whc = new wareHouseController();
+//        whc.importProduct("eggs", 1);
+//        ProductsDAO pr = new ProductsDAO();
+//        System.out.println(pr.getProductPrice("eggs"));
 //        whc.productsAndQuantity(1);
 
 //        whc.productQuantityAndDistribution("eggs");
@@ -222,5 +236,5 @@ public class wareHouseController {
 //        }
 //        ArrayList<Stock> stocks = whc.exportProduct("orange", 2);
 
-    }
 }
+
