@@ -1,5 +1,33 @@
 <html>
+<head>
+    <style>
+
+        body {
+            text-align: center;
+        }
+
+        p {
+            margin: 30px 0;
+        }
+
+        a {
+            text-decoration: none;
+            border: 1px solid grey;
+            padding: 5px;
+            background-color: #ddd;
+            box-shadow: 2px 2px 5px black;
+            color: black;
+            box-weight: bold;
+        }
+
+        a:hover {
+           background-color: #aaa;
+        }
+    </style>
+</head>
 <body>
+    <h3> Header 1 </h3>
+
     <p>
         <a href=operations/totalTakenSpaceInWarehouse.jsp>Get Total taken space in the Warehouse</a>
     </p>
@@ -21,6 +49,12 @@
     <p>
         <a href=operations/productQuantityAndDistribution.jsp>Get the quantity and the distribution by product </a>
     </p>
+
+    <hr>
+
+        <p>
+            <a href=operations/productQuantityAndDistribution.jsp>Get the quantity and the distribution by product </a>
+        </p>
 
 </body>
 </html>

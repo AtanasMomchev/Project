@@ -12,7 +12,7 @@
      <p>
         <%
          for (String[] s : wr.productsAndQuantity(inputStr))
-         out.println(s[0] + " " + s[1]);
+         out.println(s[0] + " " + s[1] + "<br/>");
          %>
      </p>
     <a href="../../index.jsp">Back to main menu</a>

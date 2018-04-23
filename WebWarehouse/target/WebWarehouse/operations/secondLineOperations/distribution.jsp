@@ -17,7 +17,7 @@
      <p> Quantity by lots</p>
         <%
         for (Integer i : sd.getLotsIdsFromStockSet())
-            out.println(sd.getQuantityOfProductInOneLot(i, inputStr) + " in lot with Id " + i);
+            out.println(sd.getQuantityOfProductInOneLot(i, inputStr) + " in lot with Id " + i + "<br/>");
          %>
       </p>
     <a href="../../index.jsp">Back to main menu</a>
