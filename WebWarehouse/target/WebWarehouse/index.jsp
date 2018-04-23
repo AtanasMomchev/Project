@@ -7,7 +7,7 @@
         }
 
         p {
-            margin: 30px 0;
+            margin: 20px 0;
         }
 
         a {
@@ -26,7 +26,7 @@
     </style>
 </head>
 <body>
-    <h3> Header 1 </h3>
+    <h3> References </h3>
 
     <p>
         <a href=operations/totalTakenSpaceInWarehouse.jsp>Get Total taken space in the Warehouse</a>
@@ -53,8 +53,20 @@
     <hr>
 
         <p>
-            <a href=operations/productQuantityAndDistribution.jsp>Get the quantity and the distribution by product </a>
-        </p>
+                        <a href=operations/importProdInList.jsp>Add new product in list. </a>
+                    </p>
+        <p>
+                    <a href=operations/importLotInList.jsp>Add new lot in list. </a>
+                </p>
+        <p>
+                    <a href=operations/importProdInLot.jsp>Import products in Warehouse. </a>
+                </p>
+        <p>
+                    <a href=operations/exportProdFromLot.jsp>Export products from Warehouse. </a>
+                </p>
+        <p>
+                    <a href=operations/removeLotAndRearenge.jsp>Remove lot.</a>
+                </p>
 
 </body>
 </html>

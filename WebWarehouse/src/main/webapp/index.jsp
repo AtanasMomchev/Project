@@ -53,8 +53,20 @@
     <hr>
 
         <p>
-            <a href=imports/importProdInList.jsp>Add new product in list </a>
-        </p>
+                        <a href=operations/importProdInList.jsp>Add new product in list. </a>
+                    </p>
+        <p>
+                    <a href=operations/importLotInList.jsp>Add new lot in list. </a>
+                </p>
+        <p>
+                    <a href=operations/importProdInLot.jsp>Import products in Warehouse. </a>
+                </p>
+        <p>
+                    <a href=operations/exportProdFromLot.jsp>Export products from Warehouse. </a>
+                </p>
+        <p>
+                    <a href=operations/removeLotAndRearenge.jsp>Remove lot.</a>
+                </p>
 
 </body>
 </html>

@@ -1,19 +1,19 @@
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\exceptions\ProductNotFoundException.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\model\Stock.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\exceptions\WarehouseExceptions.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\interfaces\HistoryInfo.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\interfaces\LotsInfo.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\dao\HistoryDAO.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\dao\LotsDAO.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\interfaces\ProductsInfo.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\exceptions\ProductAvailableInStock.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\model\Lot.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\model\Product.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\dao\AbstractDAO.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\controller\wareHouseController.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\exceptions\NotEnoughtProductsInSupply.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\dao\StockDAO.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\interfaces\StockInfo.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\exceptions\NotEnoughtSpaceException.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\dao\ProductsDAO.java
-F:\SwiftAcademy\Project\Project\WebWarehouse\src\main\java\exceptions\ProductExistException.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\model\Product.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\interfaces\LotsInfo.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\dao\StockDAO.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\model\Lot.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\model\Stock.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\exceptions\ProductExistException.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\exceptions\NotEnoughtProductsInSupply.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\interfaces\HistoryInfo.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\dao\LotsDAO.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\exceptions\ProductAvailableInStock.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\exceptions\WarehouseExceptions.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\dao\HistoryDAO.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\exceptions\NotEnoughtSpaceException.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\dao\AbstractDAO.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\dao\ProductsDAO.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\exceptions\ProductNotFoundException.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\interfaces\ProductsInfo.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\interfaces\StockInfo.java
+D:\workplace java\Swif\Project\Project\WebWarehouse\src\main\java\controller\wareHouseController.java

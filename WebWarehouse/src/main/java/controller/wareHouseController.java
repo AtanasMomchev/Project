@@ -115,7 +115,7 @@ public class wareHouseController {
         }
         return result;
     }
-    public ArrayList<Stock> removeLotAndReangeProducts(int lot_id) throws SQLException, NotEnoughtSpaceException, WarehouseExceptions {
+    public ArrayList<Stock> removeLotAndRearrangeProducts(int lot_id) throws SQLException, NotEnoughtSpaceException, WarehouseExceptions {
         int availableSize = ld.totalSize() - sd.totalTakenSize();
         double availableWeight = ld.totalWeight() - sd.totalTakenWeight();
         int sizeInLot = sd.getTotalTakenSizeInLot(lot_id);
