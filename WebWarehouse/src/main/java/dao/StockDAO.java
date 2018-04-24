@@ -136,7 +136,7 @@ public class StockDAO  extends AbstractDAO implements StockInfo {
 
     @Override
     public Stock getLot(String name, int quantity) throws SQLException, ProductNotFoundException {
-        Lot lot = lotWithProduct(name, quantity);
+        Lot lot = lotWithProductOld(name, quantity);
 
         int lotId = lot.getId();
         return new Stock(name, lotId, quantity);
