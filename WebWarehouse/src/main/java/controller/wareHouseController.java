@@ -123,12 +123,19 @@ public class wareHouseController {
         if(availableSize < sizeInLot || availableWeight < weightInLot) throw new NotEnoughtSpaceException("No space to rearange products!");
 
         int quantity;
+        ArrayList<String> p = new ArrayList<>();
+        ArrayList<Integer> q = new ArrayList<>();
         ArrayList<Stock> rearrangedProducts = null;
         for(String product : sd.getProdFromLot(lot_id)){
             quantity = sd.getQuantityOfProductInOneLot(lot_id,product);
-            rearrangedProducts = importProduct(product,quantity);
+            p.add(product);
+            q.add(quantity);
+
             sd.deleteRow(lot_id);
             if(!ld.deleteLot(lot_id)) throw new WarehouseExceptions("Could not delete lot for some reason!");
+        }
+        for (int i=0;i<p.size();i++){
+            rearrangedProducts = importProduct(p.get(i),q.get(i));
         }
         return rearrangedProducts;
     }
