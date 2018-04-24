@@ -157,8 +157,7 @@ public class StockDAO  extends AbstractDAO implements StockInfo {
         return 0;
     }
 
-    @Override
-    public Lot lotWithProduct(String name, int quantity) throws SQLException, ProductNotFoundException {
+    public Lot lotWithProductOld(String name, int quantity) throws SQLException, ProductNotFoundException {
 
         LotsDAO lot = new LotsDAO();
 
@@ -180,6 +179,41 @@ public class StockDAO  extends AbstractDAO implements StockInfo {
 
         return null;
     }
+
+    @Override
+    public Lot lotWithProduct(String name, int quantity) throws SQLException, ProductNotFoundException {
+
+        LotsDAO lot = new LotsDAO();
+        int lotTemp = 0;
+        int sizeTemp = Integer.MAX_VALUE;
+        double weightTemp = Integer.MAX_VALUE;
+
+        if (!getProdFromLot().contains(name)){
+            throw new ProductNotFoundException(name);
+
+        } else
+            for (Integer id : getLotsIdsFromStockSet()) {
+
+                if (sizeTemp > getTotalTakenSizeInLot(id) && weightTemp > getTotalTakenWeightInLot(id)) {
+                    sizeTemp = getTotalTakenSizeInLot(id);
+                    weightTemp = getTotalTakenWeightInLot(id);
+                    lotTemp = id;
+                }
+            }
+
+                for (String prod : getProdFromLot(lotTemp)){
+
+                    if (prod.equals(name)) {
+                        if (productQuantityInLot(lotTemp, prod) >= quantity) {
+                            return new Lot(lotTemp, lot.getLotSize(lotTemp), lot.getLotWeight(lotTemp));
+                        }
+                    }
+                }
+
+        return null;
+    }
+
+
 
     private int productQuantityInLot(int lot_id, String name) throws SQLException{
         String getQuantityQuery = "SELECT SUM(product_quantity)\n" +
