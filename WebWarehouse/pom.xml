@@ -51,7 +51,8 @@
                 <version>3.2.0</version>
                 <configuration>
                     <!--webappDirectory>/sample/servlet/container/deploy/directory</webappDirectory-->
-                    <outputDirectory>D:\workplace java\apps for java\apache-tomcat-8.5.29\webapps</outputDirectory>
+                    <!--<outputDirectory>D:\workplace java\apps for java\apache-tomcat-8.5.29\webapps</outputDirectory>-->
+                    <outputDirectory>E:\Apache\apache-tomcat-8.5.29\webapps</outputDirectory>
                 </configuration>
             </plugin>
 

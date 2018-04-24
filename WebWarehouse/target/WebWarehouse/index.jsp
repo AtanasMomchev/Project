@@ -50,6 +50,13 @@
         <a href=operations/productQuantityAndDistribution.jsp>Get the quantity and the distribution by product </a>
     </p>
 
+    <p>
+        <a href=operations/getProductPrice.jsp>Get the price of product </a>
+    </p>
+    <p>
+        <a href=operations/getSetOfProdInStock.jsp> Get a list of all products from stock </a>
+    </p>
+
     <hr>
 
         <p>

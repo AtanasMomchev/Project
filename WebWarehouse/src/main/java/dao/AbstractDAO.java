@@ -13,8 +13,8 @@ public class AbstractDAO {
 
             final String DBMS_CONN_STRING = "jdbc:mysql://localhost:3306/warehouse?verifyServerCertificate=false&useSSL=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
             final String DBMS_USERNAME = "root";
-            final String DBMS_PASSWORD = "Nasko235";
-//            final String DBMS_PASSWORD = "bda6caa4";
+//            final String DBMS_PASSWORD = "Nasko235";
+            final String DBMS_PASSWORD = "bda6caa4";
             Connection con = DriverManager.getConnection(DBMS_CONN_STRING, DBMS_USERNAME,
                     DBMS_PASSWORD);
 //            System.out.println("Connected to Warehouse");

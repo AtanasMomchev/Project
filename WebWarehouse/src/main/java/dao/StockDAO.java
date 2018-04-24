@@ -262,6 +262,14 @@ public class StockDAO  extends AbstractDAO implements StockInfo {
         }
     }
 
+    public Set<String> getSetOfProdInStock() throws SQLException {
+        Set<String> set = new HashSet<>();
+        if (getProdFromLot().size() > 0){
+            set.addAll(getProdFromLot());
+        }
+        return set;
+    }
+
     private boolean findProd(String name) throws SQLException, ProductNotFoundException {
 
         String selectQuery = "SELECT `products`.`nameProduct`\n" +

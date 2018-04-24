@@ -9,7 +9,7 @@
 </p>
   <html>
    <body>
-    <p> Import was <%try{
+    <p> Import <%try{
     ld.setLot(size,weight);
     out.print(" succeeded!");
     }catch(Exception e){
